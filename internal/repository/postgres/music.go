@@ -101,8 +101,6 @@ func (m *MusicPostgres) GetAllSongs(ctx *gin.Context, limit, offset int, filter 
 		args = append(args, limit, offset)
 	}
 
-	fmt.Println(query)
-
 	err := m.db.SelectContext(ctx.Request.Context(), &songs, query, args...)
 	if err != nil {
 		return nil, err

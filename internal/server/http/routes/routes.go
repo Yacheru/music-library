@@ -3,6 +3,10 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
+	_ "music-library/docs"
+
 	"music-library/init/config"
 	"music-library/internal/repository"
 	"music-library/internal/server/http/client"
@@ -36,4 +40,6 @@ func (r *Router) Router() {
 		r.group.PATCH("/", middleware.ValidateSong(), r.handler.EditSong)                                   // Изменение данных песни
 		r.group.POST("/new", r.handler.StorageNewSong)                                                      // Добавление новой песни
 	}
+
+	r.group.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }

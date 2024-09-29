@@ -59,7 +59,7 @@ func (c *HTTPClient) GetSongMetadata(ctx context.Context, artist, title string) 
 }
 
 func (c *HTTPClient) getSongLyrics(ctx context.Context, artist, title string) (string, error) {
-	ctx, cancel := context.WithTimeout(ctx, time.Second*3)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
 	var lyrics = new(entities.Lyrics)
@@ -96,7 +96,13 @@ func (c *HTTPClient) getSongLinkAndReleaseDate(ctx context.Context, artist, titl
 
 	res, err := s.SearchForTrack(ctx, artist, title)
 	if err != nil {
+		logger.Error(err.Error(), constants.ClientCategory)
+
 		return nil, "", err
+	}
+
+	if res.Tracks == nil {
+		return nil, "", constants.SongNotFoundError
 	}
 
 	date := s.ReleaseDateTime(res.Tracks.Tracks[0].Album.ReleaseDatePrecision, res.Tracks.Tracks[0].Album.ReleaseDate)

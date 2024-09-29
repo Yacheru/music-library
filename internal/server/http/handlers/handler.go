@@ -21,6 +21,20 @@ func NewHandler(service *service.Service) *Handler {
 	}
 }
 
+// EditSong
+// @Summary      Edit Song
+// @Description  Edit song
+// @Tags         songs
+// @Accept       json
+// @Produce      json
+// @Param        body body entities.Song true "Body"
+// @Param        title   query    string  false  "edit song by title"
+// @Param        link    query    string  false  "edit song by link"
+// @Success      200  {object}  handlers.Response
+// @Failure      400  {object}  handlers.Response
+// @Failure      404  {object}  handlers.Response
+// @Failure      500  {object}  handlers.Response
+// @Router       / [patch]
 func (h *Handler) EditSong(ctx *gin.Context) {
 	var entitySong = new(entities.Song)
 	if err := ctx.ShouldBindJSON(entitySong); err != nil {
@@ -45,6 +59,19 @@ func (h *Handler) EditSong(ctx *gin.Context) {
 	NewSuccessResponse(ctx, http.StatusOK, "Song edited successfully", newSong)
 }
 
+// DeleteSong
+// @Summary      Delete Song
+// @Description  Delete song
+// @Tags         songs
+// @Accept       json
+// @Produce      json
+// @Param        title   query    string  false  "delete song by title"
+// @Param        link    query    string  false  "delete song by link"
+// @Success      400  {object}  handlers.Response
+// @Success      200  {object}  handlers.Response
+// @Failure      404  {object}  handlers.Response
+// @Failure      500  {object}  handlers.Response
+// @Router       / [delete]
 func (h *Handler) DeleteSong(ctx *gin.Context) {
 	title := ctx.Query("title")
 	link := ctx.Query("link")
@@ -63,6 +90,21 @@ func (h *Handler) DeleteSong(ctx *gin.Context) {
 	return
 }
 
+// GetVerse
+// @Summary      Get Verses
+// @Description  Get Verses
+// @Tags         songs
+// @Accept       json
+// @Produce      json
+// @Param        title   query    string  false  "get verses by title"
+// @Param        link    query    string  false  "get verses by link"
+// @Param        limit   query    int  false  "set limit"
+// @Param        offset    query    int  false  "set offset"
+// @Failure      400  {object}  handlers.Response
+// @Success      200  {object}  handlers.Response
+// @Failure      404  {object}  handlers.Response
+// @Failure      500  {object}  handlers.Response
+// @Router       /verse [get]
 func (h *Handler) GetVerse(ctx *gin.Context) {
 	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
 	offset, _ := strconv.Atoi(ctx.DefaultQuery("offset", "0"))
@@ -77,13 +119,27 @@ func (h *Handler) GetVerse(ctx *gin.Context) {
 			return
 		}
 
-		NewErrorResponse(ctx, http.StatusBadRequest, err.Error())
+		NewErrorResponse(ctx, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 
 	NewSuccessResponse(ctx, http.StatusOK, "Verses", verses)
 }
 
+// GetAllSongs
+// @Summary      Get All Songs
+// @Description  Get All Songs
+// @Tags         songs
+// @Accept       json
+// @Produce      json
+// @Param        limit   query    int  false  "set limit"
+// @Param        offset    query    int  false  "set offset"
+// @Param        filter    query    string  false  "set filter"
+// @Failure      400  {object}  handlers.Response
+// @Success      200  {object}  handlers.Response
+// @Failure      404  {object}  handlers.Response
+// @Failure      500  {object}  handlers.Response
+// @Router       /all [get]
 func (h *Handler) GetAllSongs(ctx *gin.Context) {
 	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
 	offset, _ := strconv.Atoi(ctx.DefaultQuery("offset", "0"))
@@ -114,8 +170,22 @@ func (h *Handler) GetAllSongs(ctx *gin.Context) {
 	return
 }
 
+// StorageNewSong
+// @Summary      Storage New Song
+// @Description  Storage New Song
+// @Tags         songs
+// @Accept       json
+// @Produce      json
+// @Param        body body entities.NewSong true "Body"
+// @Success      200  {object}  handlers.Response
+// @Failure      400  {object}  handlers.Response
+// @Failure      404  {object}  handlers.Response
+// @Failure      408  {object}  handlers.Response
+// @Failure      409  {object}  handlers.Response
+// @Failure      500  {object}  handlers.Response
+// @Router       /new [post]
 func (h *Handler) StorageNewSong(ctx *gin.Context) {
-	var newSongEntity = new(entities.Song)
+	var newSongEntity = new(entities.NewSong)
 	if err := ctx.ShouldBindJSON(newSongEntity); err != nil {
 		NewErrorResponse(ctx, http.StatusBadRequest, err.Error())
 		return
@@ -140,6 +210,6 @@ func (h *Handler) StorageNewSong(ctx *gin.Context) {
 		return
 	}
 
-	NewSuccessResponse(ctx, http.StatusOK, "message saved successfully", nil)
+	NewSuccessResponse(ctx, http.StatusOK, "song saved successfully", nil)
 	return
 }

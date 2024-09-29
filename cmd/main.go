@@ -10,6 +10,10 @@ import (
 	"syscall"
 )
 
+// @title Music-Library
+// @version 1.0.1
+
+// @BasePath /music
 func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGKILL)
 

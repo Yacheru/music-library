@@ -18,12 +18,27 @@ func ValidateFilter() gin.HandlerFunc {
 
 		filter := ctx.Query("filter")
 
+		if filter == "" {
+			ctx.Next()
+			return
+		}
+
 		var parts []string
 
 		if strings.Count(filter, ": ") == 1 {
 			parts = strings.Split(filter, ": ")
 		} else {
 			parts = strings.Split(filter, ":")
+		}
+
+		if len(parts) != 2 {
+			handlers.NewErrorResponse(ctx, http.StatusBadRequest, "Invalid filter. Example: &filter=group: SomeGroup")
+			return
+		}
+
+		if parts[1] == "" {
+			handlers.NewErrorResponse(ctx, http.StatusBadRequest, "Filter value not provided")
+			return
 		}
 
 		var entityFilter = new(entities.Filter)
@@ -38,23 +53,13 @@ func ValidateFilter() gin.HandlerFunc {
 			entityFilter.Link = &parts[1]
 		case "release_date":
 			entityFilter.ReleaseDate = &parts[1]
+
+			if parts[1] != "ASC" && parts[1] != "DESC" {
+				handlers.NewErrorResponse(ctx, http.StatusBadRequest, "Release_date filter support ASC or DESC")
+				return
+			}
 		default:
 			ctx.Next()
-			return
-		}
-
-		if len(parts) != 2 {
-			handlers.NewErrorResponse(ctx, http.StatusBadRequest, "Invalid filter. Example: filter=group: SomeGroup")
-			return
-		}
-
-		if parts[1] == "" {
-			handlers.NewErrorResponse(ctx, http.StatusBadRequest, "Filter value not provided")
-			return
-		}
-
-		if parts[0] == "release_date" && (parts[1] != "ASC" && parts[1] != "DESC") {
-			handlers.NewErrorResponse(ctx, http.StatusBadRequest, "Release_date filter support ASC or DESC")
 			return
 		}
 

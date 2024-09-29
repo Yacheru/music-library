@@ -13,6 +13,7 @@ import (
 func NewConnection(ctx context.Context, cfg *config.Config) (*sqlx.DB, error) {
 	db, err := sqlx.ConnectContext(ctx, "pgx", cfg.PostgresDSN)
 	if err != nil {
+		logger.Error(err.Error(), constants.PostgresCategory)
 		return nil, err
 	}
 

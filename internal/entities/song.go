@@ -2,10 +2,15 @@ package entities
 
 import "time"
 
+type NewSong struct {
+	Group string `json:"group" db:"group"`
+	Song  string `json:"song" db:"title"`
+}
+
 type Song struct {
-	Group    string `json:"group" db:"group"`
-	Song     string `json:"song" db:"title"`
-	Metadata `json:"metadata,omitempty"`
+	Group    string `json:"group" db:"group" swaggerignore:"true"`
+	Song     string `json:"song" db:"title" swaggerignore:"true"`
+	Metadata `json:"metadata,omitempty" swaggerignore:"true"`
 }
 
 type Metadata struct {
