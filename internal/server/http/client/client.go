@@ -78,6 +78,10 @@ func (c *HTTPClient) getSongLyrics(ctx context.Context, artist, title string) (s
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusNotFound {
+		return "", constants.NoLyricsFoundError
+	}
+
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
@@ -97,7 +101,6 @@ func (c *HTTPClient) getSongLinkAndReleaseDate(ctx context.Context, artist, titl
 	res, err := s.SearchForTrack(ctx, artist, title)
 	if err != nil {
 		logger.Error(err.Error(), constants.ClientCategory)
-
 		return nil, "", err
 	}
 
