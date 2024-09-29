@@ -13,6 +13,7 @@ FROM alpine
 WORKDIR /music-library
 
 COPY ./configs/.env /music-library/configs/.env
+COPY ./migrations /music-library/migrations
 COPY --from=builder /music-library/build /music-library
 
 CMD ["/music-library/music.exe"]

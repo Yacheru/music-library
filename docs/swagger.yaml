@@ -1,0 +1,228 @@
+basePath: /music
+definitions:
+  entities.NewSong:
+    properties:
+      group:
+        type: string
+      song:
+        type: string
+    type: object
+  entities.Song:
+    type: object
+  handlers.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+info:
+  contact: {}
+  title: Music-Library
+  version: 1.0.1
+paths:
+  /:
+    delete:
+      consumes:
+      - application/json
+      description: Delete song
+      parameters:
+      - description: delete song by title
+        in: query
+        name: title
+        type: string
+      - description: delete song by link
+        in: query
+        name: link
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.Response'
+      summary: Delete Song
+      tags:
+      - songs
+    patch:
+      consumes:
+      - application/json
+      description: Edit song
+      parameters:
+      - description: Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entities.Song'
+      - description: edit song by title
+        in: query
+        name: title
+        type: string
+      - description: edit song by link
+        in: query
+        name: link
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.Response'
+      summary: Edit Song
+      tags:
+      - songs
+  /all:
+    get:
+      consumes:
+      - application/json
+      description: Get All Songs
+      parameters:
+      - description: set limit
+        in: query
+        name: limit
+        type: integer
+      - description: set offset
+        in: query
+        name: offset
+        type: integer
+      - description: set filter
+        in: query
+        name: filter
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.Response'
+      summary: Get All Songs
+      tags:
+      - songs
+  /new:
+    post:
+      consumes:
+      - application/json
+      description: Storage New Song
+      parameters:
+      - description: Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entities.NewSong'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.Response'
+      summary: Storage New Song
+      tags:
+      - songs
+  /verse:
+    get:
+      consumes:
+      - application/json
+      description: Get Verses
+      parameters:
+      - description: get verses by title
+        in: query
+        name: title
+        type: string
+      - description: get verses by link
+        in: query
+        name: link
+        type: string
+      - description: set limit
+        in: query
+        name: limit
+        type: integer
+      - description: set offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.Response'
+      summary: Get Verses
+      tags:
+      - songs
+swagger: "2.0"
