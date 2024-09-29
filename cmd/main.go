@@ -28,7 +28,6 @@ func main() {
 	if serv != nil {
 		serv.Run()
 	}
-
 	logger.Info("service running", constants.MainCategory)
 
 	<-ctx.Done()

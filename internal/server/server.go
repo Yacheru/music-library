@@ -20,14 +20,14 @@ type Server struct {
 }
 
 func NewHTTPServer(ctx context.Context, cfg *config.Config) (*Server, error) {
-	db, err := postgres.NewConnection(cfg)
+	db, err := postgres.NewConnection(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
 
 	engine := setupGin(cfg)
 	group := engine.Group(cfg.ApiEntry)
-	routes.InitRoutesAndComponents(ctx, cfg, group, db).Router()
+	routes.InitRoutesAndComponents(cfg, group, db).Router()
 
 	server := &http.Server{
 		Addr:           fmt.Sprintf(":%d", cfg.ApiPort),

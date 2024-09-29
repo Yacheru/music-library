@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
 	"music-library/init/config"
@@ -17,7 +16,7 @@ type Router struct {
 	handler *handlers.Handler
 }
 
-func InitRoutesAndComponents(ctx context.Context, cfg *config.Config, group *gin.RouterGroup, db *sqlx.DB) *Router {
+func InitRoutesAndComponents(cfg *config.Config, group *gin.RouterGroup, db *sqlx.DB) *Router {
 	repo := repository.NewRepository(db)
 	httpClient := client.NewHTTPClient(cfg)
 	serv := service.NewService(repo, httpClient)

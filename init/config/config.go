@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"github.com/spf13/viper"
 	"music-library/init/logger"
 	"music-library/pkg/constants"
@@ -36,28 +35,6 @@ func InitConfig() error {
 		logger.Error(err.Error(), constants.ConfigCategory)
 
 		return err
-	}
-
-	if err := checkVars(); err != nil {
-		logger.Error(err.Error(), constants.ConfigCategory)
-
-		return err
-	}
-
-	return nil
-}
-
-func checkVars() error {
-	if ServerConfig.ApiPort == 0 || ServerConfig.ApiEntry == "" {
-		return errors.New(constants.EmptyConfigVarError.Error() + "API_PORT, API_ENTRY must be set")
-	}
-
-	if ServerConfig.PostgresDSN == "" {
-		return errors.New(constants.EmptyConfigVarError.Error() + "POSTGRESQL_DSN must be set")
-	}
-
-	if ServerConfig.SpotifyId == "" || ServerConfig.SpotifySecret == "" {
-		return errors.New(constants.EmptyConfigVarError.Error() + "SPOTIFY_CLIENT_ID, SPOTIFY_SECRET must be set")
 	}
 
 	return nil
