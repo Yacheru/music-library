@@ -5,6 +5,7 @@ const (
 	MainCategory       = "main"
 	ConfigCategory     = "config"
 	PostgresCategory   = "postgres"
+	ClientCategory     = "client"
 	HandlersCategory   = "handlers"
 	ServerCategory     = "server"
 	MiddlewareCategory = "middleware"

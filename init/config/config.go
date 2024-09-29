@@ -15,6 +15,9 @@ type Config struct {
 	ApiEntry string `mapstructure:"API_ENTRY"`
 
 	PostgresDSN string `mapstructure:"POSTGRESQL_DSN"`
+
+	SpotifyId     string `mapstructure:"SPOTIFY_ID"`
+	SpotifySecret string `mapstructure:"SPOTIFY_SECRET"`
 }
 
 func InitConfig() error {
@@ -47,6 +50,14 @@ func InitConfig() error {
 func checkVars() error {
 	if ServerConfig.ApiPort == 0 || ServerConfig.ApiEntry == "" {
 		return errors.New(constants.EmptyConfigVarError.Error() + "API_PORT, API_ENTRY must be set")
+	}
+
+	if ServerConfig.PostgresDSN == "" {
+		return errors.New(constants.EmptyConfigVarError.Error() + "POSTGRESQL_DSN must be set")
+	}
+
+	if ServerConfig.SpotifyId == "" || ServerConfig.SpotifySecret == "" {
+		return errors.New(constants.EmptyConfigVarError.Error() + "SPOTIFY_CLIENT_ID, SPOTIFY_SECRET must be set")
 	}
 
 	return nil

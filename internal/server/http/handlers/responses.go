@@ -8,10 +8,10 @@ type Response struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
-func (h *Handler) NewSuccessResponse(ctx *gin.Context, status int, message string, data interface{}) {
+func NewSuccessResponse(ctx *gin.Context, status int, message string, data interface{}) {
 	ctx.AbortWithStatusJSON(status, Response{status, message, data})
 }
 
-func (h *Handler) NewErrorResponse(ctx *gin.Context, status int, message string) {
+func NewErrorResponse(ctx *gin.Context, status int, message string) {
 	ctx.AbortWithStatusJSON(status, Response{status, message, nil})
 }

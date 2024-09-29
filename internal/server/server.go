@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"music-library/init/config"
+	"music-library/internal/repository/postgres"
 	"music-library/internal/server/http/routes"
 	"net/http"
 	"time"
@@ -19,14 +20,18 @@ type Server struct {
 }
 
 func NewHTTPServer(ctx context.Context, cfg *config.Config) (*Server, error) {
-	db, err := postgres
+	db, err := postgres.NewConnection(cfg)
+	if err != nil {
+		return nil, err
+	}
 
 	engine := setupGin(cfg)
 	group := engine.Group(cfg.ApiEntry)
-	routes.InitRoutesAndComponents(ctx, group)
+	routes.InitRoutesAndComponents(ctx, cfg, group, db).Router()
 
 	server := &http.Server{
 		Addr:           fmt.Sprintf(":%d", cfg.ApiPort),
+		Handler:        engine,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,

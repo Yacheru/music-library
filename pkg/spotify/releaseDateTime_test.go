@@ -1,6 +1,7 @@
 package spotify
 
 import (
+	"net/http"
 	"reflect"
 	"testing"
 	"time"
@@ -23,7 +24,34 @@ func TestClient_ReleaseDateTime(t *testing.T) {
 		args   args
 		want   time.Time
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Case #1",
+			fields: fields{
+				http:        new(http.Client),
+				id:          "1",
+				secret:      "secret",
+				accessToken: "token",
+			},
+			args: args{
+				ReleaseDatePrecision: "day",
+				ReleaseDate:          "2006-01-02",
+			},
+			want: time.Date(2006, time.January, 2, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			name: "Case #2",
+			fields: fields{
+				http:        new(http.Client),
+				id:          "1",
+				secret:      "secret",
+				accessToken: "token",
+			},
+			args: args{
+				ReleaseDatePrecision: "day",
+				ReleaseDate:          "2018-08-21",
+			},
+			want: time.Date(2018, time.August, 21, 0, 0, 0, 0, time.UTC),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -10,7 +10,7 @@ import (
 
 var log *logrus.Logger
 
-func InitLogger(debug bool) *logrus.Logger {
+func InitLogger(debug bool) {
 	log = logrus.New()
 
 	log.SetOutput(os.Stdout)
@@ -23,8 +23,6 @@ func InitLogger(debug bool) *logrus.Logger {
 		FullTimestamp: true,
 		ForceColors:   true,
 	})
-
-	return log
 }
 
 func Info(message string, category string) {

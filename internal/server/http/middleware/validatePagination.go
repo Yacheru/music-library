@@ -18,6 +18,7 @@ func ValidateQuery() gin.HandlerFunc {
 		limit, err := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
 		if err != nil || limit < 0 {
 			handlers.NewErrorResponse(ctx, http.StatusBadRequest, "limit must be a positive integer")
+			return
 		}
 
 		ctx.Next()
