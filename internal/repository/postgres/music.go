@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
+	"music-library/init/logger"
 	"music-library/internal/entities"
 	"music-library/pkg/constants"
 )
@@ -30,7 +31,7 @@ func (m *MusicPostgres) EditSong(ctx *gin.Context, title, link string, song *ent
 		WHERE title = $6 OR link = $7
 		RETURNING "group", title, text, link, release_date
 	`
-	err := m.db.GetContext(ctx, entitySong, query, song.Group, song.Song, song.Lyrics, song.Link, song.ReleaseDate, title, link)
+	err := m.db.GetContext(ctx.Request.Context(), entitySong, query, song.Group, song.Song, song.Lyrics, song.Link, song.ReleaseDate, title, link)
 	if err != nil {
 		return nil, err
 	}
@@ -39,20 +40,17 @@ func (m *MusicPostgres) EditSong(ctx *gin.Context, title, link string, song *ent
 }
 
 func (m *MusicPostgres) DeleteSong(ctx *gin.Context, title, link string) error {
+	var s = new(entities.Song)
+
 	query := `
-		DELETE FROM songs WHERE title=$1 OR link=$2;
+		DELETE FROM songs WHERE title=$1 OR link=$2 RETURNING "group", title, link;
 	`
-	rows, err := m.db.ExecContext(ctx, query, title, link)
+	err := m.db.GetContext(ctx.Request.Context(), s, query, title, link)
 	if err != nil {
 		return err
 	}
-	count, err := rows.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if count == 0 {
-		return constants.SongNotFoundError
-	}
+
+	logger.DebugF("\033[44m Artist \033[0m %s, \033[44m Song \033[0m %s, \033[44m Link \033[0m %s \033[1msuccessfully deleted", constants.PostgresCategory, s.Group, s.Song, s.Link)
 
 	return nil
 }
@@ -109,15 +107,20 @@ func (m *MusicPostgres) GetAllSongs(ctx *gin.Context, limit, offset int, filter 
 	return songs, nil
 }
 
-func (m *MusicPostgres) StorageNewSong(ctx *gin.Context, song *entities.Song) error {
+func (m *MusicPostgres) StorageNewSong(ctx *gin.Context, song *entities.Song) (*entities.Song, error) {
+	var entitySong = new(entities.Song)
+
 	query := `
 		INSERT INTO songs ("group", title, text, link, release_date) 
 		VALUES ($1, $2, $3, $4, $5)
+		RETURNING "group", title, text, link, release_date
 	`
-	_, err := m.db.ExecContext(ctx.Request.Context(), query, song.Group, song.Song, song.Lyrics, song.Link, song.ReleaseDate)
+	err := m.db.GetContext(ctx.Request.Context(), entitySong, query, song.Group, song.Song, song.Lyrics, song.Link, song.ReleaseDate)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	logger.DebugF("\033[44m Artist \033[0m %s, \033[44m Song \033[0m %s, \033[44m Link \033[0m %s \033[1msuccessfully saved", constants.PostgresCategory, song.Group, song.Song, song.Link)
+
+	return song, nil
 }

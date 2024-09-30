@@ -59,11 +59,13 @@ func (c *HTTPClient) GetSongMetadata(ctx context.Context, artist, title string) 
 }
 
 func (c *HTTPClient) getSongLyrics(ctx context.Context, artist, title string) (string, error) {
-	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*3)
 	defer cancel()
 
+	url := fmt.Sprintf("https://api.lyrics.ovh/v1/%s/%s", artist, title)
+
 	var lyrics = new(entities.Lyrics)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("https://api.lyrics.ovh/v1/%s/%s", artist, title), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return "", err
 	}

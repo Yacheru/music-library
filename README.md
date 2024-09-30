@@ -10,5 +10,7 @@
 P.S. Для работы удаленного апи необходимо иметь [web-приложение spotify](https://developer.spotify.com/documentation/web-api/tutorials/getting-started#create-an-app)
 (Либо воспользоваться данными, которые я приложил к отправленной форме)
 
+В качестве улучшения сервиса, стоит рассмотреть вариант добавления Redis (или аналоги) в качестве in-memory хранилища
+
 Запуск:
 - make docker-up

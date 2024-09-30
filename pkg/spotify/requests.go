@@ -58,6 +58,14 @@ func (c *Client) SearchForTrack(ctx context.Context, artist, track string) (*ent
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusUnauthorized {
+		err := c.getAccessToken(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return c.SearchForTrack(ctx, artist, track)
+	}
+
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err

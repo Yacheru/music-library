@@ -21,7 +21,7 @@ func NewHandler(service *service.Service) *Handler {
 	}
 }
 
-// EditSong
+// EditSong godoc
 // @Summary      Edit Song
 // @Description  Edit song
 // @Tags         songs
@@ -31,11 +31,15 @@ func NewHandler(service *service.Service) *Handler {
 // @Param        title   query    string  false  "edit song by title"
 // @Param        link    query    string  false  "edit song by link"
 // @Success      200  {object}  handlers.Response
-// @Failure      400  {object}  handlers.Response
-// @Failure      404  {object}  handlers.Response
-// @Failure      500  {object}  handlers.Response
+// @Failure      400,404,500  {object}  handlers.Response
 // @Router       / [patch]
 func (h *Handler) EditSong(ctx *gin.Context) {
+	/*
+		{"title": "newSongTitle"}
+
+		{"metadata": {"lyrics": "newSongLyrics"}}
+	*/
+
 	var entitySong = new(entities.Song)
 	if err := ctx.ShouldBindJSON(entitySong); err != nil {
 		NewErrorResponse(ctx, http.StatusBadRequest, err.Error())
@@ -57,9 +61,10 @@ func (h *Handler) EditSong(ctx *gin.Context) {
 	}
 
 	NewSuccessResponse(ctx, http.StatusOK, "Song edited successfully", newSong)
+	return
 }
 
-// DeleteSong
+// DeleteSong godoc
 // @Summary      Delete Song
 // @Description  Delete song
 // @Tags         songs
@@ -67,17 +72,15 @@ func (h *Handler) EditSong(ctx *gin.Context) {
 // @Produce      json
 // @Param        title   query    string  false  "delete song by title"
 // @Param        link    query    string  false  "delete song by link"
-// @Success      400  {object}  handlers.Response
 // @Success      200  {object}  handlers.Response
-// @Failure      404  {object}  handlers.Response
-// @Failure      500  {object}  handlers.Response
+// @Failure      400,404,500  {object}  handlers.Response
 // @Router       / [delete]
 func (h *Handler) DeleteSong(ctx *gin.Context) {
 	title := ctx.Query("title")
 	link := ctx.Query("link")
 
 	if err := h.service.Music.DeleteSong(ctx, title, link); err != nil {
-		if errors.Is(err, constants.SongNotFoundError) {
+		if errors.Is(err, sql.ErrNoRows) {
 			NewErrorResponse(ctx, http.StatusNotFound, "song not found")
 			return
 		}
@@ -90,7 +93,7 @@ func (h *Handler) DeleteSong(ctx *gin.Context) {
 	return
 }
 
-// GetVerse
+// GetVerse godoc
 // @Summary      Get Verses
 // @Description  Get Verses
 // @Tags         songs
@@ -100,10 +103,8 @@ func (h *Handler) DeleteSong(ctx *gin.Context) {
 // @Param        link    query    string  false  "get verses by link"
 // @Param        limit   query    int  false  "set limit"
 // @Param        offset    query    int  false  "set offset"
-// @Failure      400  {object}  handlers.Response
 // @Success      200  {object}  handlers.Response
-// @Failure      404  {object}  handlers.Response
-// @Failure      500  {object}  handlers.Response
+// @Failure      400,404,500  {object}  handlers.Response
 // @Router       /verse [get]
 func (h *Handler) GetVerse(ctx *gin.Context) {
 	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
@@ -115,7 +116,7 @@ func (h *Handler) GetVerse(ctx *gin.Context) {
 	verses, err := h.service.Music.GetVerse(ctx, title, link, limit, offset)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			NewErrorResponse(ctx, http.StatusNotFound, "song not found")
+			NewErrorResponse(ctx, http.StatusNotFound, "Song not found")
 			return
 		}
 
@@ -124,9 +125,10 @@ func (h *Handler) GetVerse(ctx *gin.Context) {
 	}
 
 	NewSuccessResponse(ctx, http.StatusOK, "Verses", verses)
+	return
 }
 
-// GetAllSongs
+// GetAllSongs godoc
 // @Summary      Get All Songs
 // @Description  Get All Songs
 // @Tags         songs
@@ -135,10 +137,8 @@ func (h *Handler) GetVerse(ctx *gin.Context) {
 // @Param        limit   query    int  false  "set limit"
 // @Param        offset    query    int  false  "set offset"
 // @Param        filter    query    string  false  "set filter"
-// @Failure      400  {object}  handlers.Response
 // @Success      200  {object}  handlers.Response
-// @Failure      404  {object}  handlers.Response
-// @Failure      500  {object}  handlers.Response
+// @Failure      400,404,500  {object}  handlers.Response
 // @Router       /all [get]
 func (h *Handler) GetAllSongs(ctx *gin.Context) {
 	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
@@ -170,7 +170,7 @@ func (h *Handler) GetAllSongs(ctx *gin.Context) {
 	return
 }
 
-// StorageNewSong
+// StorageNewSong godoc
 // @Summary      Storage New Song
 // @Description  Storage New Song
 // @Tags         songs
@@ -178,11 +178,7 @@ func (h *Handler) GetAllSongs(ctx *gin.Context) {
 // @Produce      json
 // @Param        body body entities.NewSong true "Body"
 // @Success      200  {object}  handlers.Response
-// @Failure      400  {object}  handlers.Response
-// @Failure      404  {object}  handlers.Response
-// @Failure      408  {object}  handlers.Response
-// @Failure      409  {object}  handlers.Response
-// @Failure      500  {object}  handlers.Response
+// @Failure      400,404,408,409,500  {object}  handlers.Response
 // @Router       /new [post]
 func (h *Handler) StorageNewSong(ctx *gin.Context) {
 	var newSongEntity = new(entities.NewSong)
@@ -191,9 +187,13 @@ func (h *Handler) StorageNewSong(ctx *gin.Context) {
 		return
 	}
 
-	err := h.service.Music.StorageNewSong(ctx, newSongEntity)
+	song, err := h.service.Music.StorageNewSong(ctx, newSongEntity)
 	if err != nil {
 		if errors.Is(err, constants.NoLyricsFoundError) {
+			NewErrorResponse(ctx, http.StatusNotFound, err.Error())
+			return
+		}
+		if errors.Is(err, constants.SongNotFoundError) {
 			NewErrorResponse(ctx, http.StatusNotFound, err.Error())
 			return
 		}
@@ -210,6 +210,6 @@ func (h *Handler) StorageNewSong(ctx *gin.Context) {
 		return
 	}
 
-	NewSuccessResponse(ctx, http.StatusOK, "song saved successfully", nil)
+	NewSuccessResponse(ctx, http.StatusOK, "Song saved successfully", song)
 	return
 }

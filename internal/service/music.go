@@ -73,10 +73,10 @@ func (m *MusicService) GetAllSongs(ctx *gin.Context, limit, offset int, filter *
 	return songs, nil
 }
 
-func (m *MusicService) StorageNewSong(ctx *gin.Context, song *entities.NewSong) error {
+func (m *MusicService) StorageNewSong(ctx *gin.Context, song *entities.NewSong) (*entities.Song, error) {
 	metadata, err := m.http.GetSongMetadata(ctx.Request.Context(), song.Group, song.Song)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	var s = new(entities.Song)
@@ -87,14 +87,15 @@ func (m *MusicService) StorageNewSong(ctx *gin.Context, song *entities.NewSong) 
 	s.ReleaseDate = metadata.ReleaseDate
 	s.Link = metadata.Link
 
-	if err := m.postgres.StorageNewSong(ctx, s); err != nil {
+	s, err = m.postgres.StorageNewSong(ctx, s)
+	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
-			return constants.SongAlreadyExistsError
+			return nil, constants.SongAlreadyExistsError
 		}
 
 		logger.Error(err.Error(), constants.ServiceCategory)
-		return err
+		return nil, err
 	}
 
-	return nil
+	return s, nil
 }

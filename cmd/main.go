@@ -28,6 +28,7 @@ func main() {
 	if err != nil {
 		cancel()
 	}
+	logger.Debug("server configurated", constants.MainCategory)
 
 	if serv != nil {
 		serv.Run()

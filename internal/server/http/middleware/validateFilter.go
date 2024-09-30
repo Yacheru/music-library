@@ -16,50 +16,43 @@ func ValidateFilter() gin.HandlerFunc {
 		// &filter=link: SomeLink
 		// &filter=release_date: ASC || DESC
 
-		filter := ctx.Query("filter")
-
-		if filter == "" {
+		f := ctx.Query("filter")
+		if f == "" {
 			ctx.Next()
 			return
 		}
 
-		var parts []string
-
-		if strings.Count(filter, ": ") == 1 {
-			parts = strings.Split(filter, ": ")
-		} else {
-			parts = strings.Split(filter, ":")
-		}
-
+		parts := strings.SplitN(f, ":", 2)
 		if len(parts) != 2 {
-			handlers.NewErrorResponse(ctx, http.StatusBadRequest, "Invalid filter. Example: &filter=group: SomeGroup")
+			handlers.NewErrorResponse(ctx, http.StatusBadRequest, "Invalid filter format. Example: &filter=group: SomeGroup")
 			return
 		}
 
-		if parts[1] == "" {
+		filter, value := strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1])
+		if value == "" {
 			handlers.NewErrorResponse(ctx, http.StatusBadRequest, "Filter value not provided")
 			return
 		}
 
 		var entityFilter = new(entities.Filter)
-		switch parts[0] {
+		switch filter {
 		case "group":
-			entityFilter.Group = &parts[1]
+			entityFilter.Group = &value
 		case "song":
-			entityFilter.Song = &parts[1]
+			entityFilter.Song = &value
 		case "lyrics":
-			entityFilter.Lyrics = &parts[1]
+			entityFilter.Lyrics = &value
 		case "link":
-			entityFilter.Link = &parts[1]
+			entityFilter.Link = &value
 		case "release_date":
-			entityFilter.ReleaseDate = &parts[1]
-
-			if parts[1] != "ASC" && parts[1] != "DESC" {
-				handlers.NewErrorResponse(ctx, http.StatusBadRequest, "Release_date filter support ASC or DESC")
+			if value != "ASC" && value != "DESC" {
+				handlers.NewErrorResponse(ctx, http.StatusBadRequest, "Release_date filter supports only ASC or DESC")
 				return
 			}
+
+			entityFilter.ReleaseDate = &value
 		default:
-			ctx.Next()
+			handlers.NewErrorResponse(ctx, http.StatusBadRequest, "Unsupported filter type")
 			return
 		}
 
